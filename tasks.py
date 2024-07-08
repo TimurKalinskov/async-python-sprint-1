@@ -25,7 +25,7 @@ class DataFetchingTask:
         """Запускает пул потоков для получения данных о погоде"""
         with ThreadPoolExecutor() as pool:
             data_generator = pool.map(
-                self.get_data, self.cities_urls.keys(), chunksize=4
+                self.get_data, self.cities_urls.values(), chunksize=4
             )
         logging.info('Weather data received')
         return list(data_generator)
