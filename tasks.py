@@ -8,7 +8,7 @@ from collections import OrderedDict
 
 from external.client import YandexWeatherAPI
 from utils import (
-    HOURS_RANGE, GOOD_CONDITIONS, CITIES_DESCRIPTION_MAP, CSV_FILE_RELATIVE_PATH
+    HOURS_RANGE, GOOD_CONDITIONS, CITIES_DESCRIPTION_MAP, CSV_FILE_RELATIVE_PATH, get_url_by_city_name
 )
 
 
@@ -25,7 +25,7 @@ class DataFetchingTask:
         """Запускает пул потоков для получения данных о погоде"""
         with ThreadPoolExecutor() as pool:
             data_generator = pool.map(
-                self.get_data, self.cities_urls.values(), chunksize=4
+                self.get_data, self.cities_urls.keys(), chunksize=4
             )
         logging.info('Weather data received')
         return list(data_generator)
@@ -34,7 +34,7 @@ class DataFetchingTask:
     def get_data(city: str) -> tuple[str, dict | None]:
         """Возвращает название города и сырые данные из YandexWeatherAPI"""
         try:
-            return city, YandexWeatherAPI().get_forecasting(city)
+            return city, YandexWeatherAPI().get_forecasting(get_url_by_city_name(city))
         except YandexAPIException as er:
             logging.error(
                 f'Error getting weather data for city {city}: {er}'
